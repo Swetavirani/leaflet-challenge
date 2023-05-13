@@ -1,6 +1,6 @@
 function createMap(earthquakes) {
 
-  // Create the tile layer that will be the background of our map.
+  // Create the tile layer for background of our map.
   let streetmap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   });
@@ -11,7 +11,7 @@ function createMap(earthquakes) {
     "Street Map": streetmap
   };
 
-  // Create an overlayMaps object to hold the bikeStations layer.
+  // Create an overlayMaps object to hold the eatherquakes layer.
   let overlayMaps = {
     "Earth Quakes": earthquakes
   };
@@ -30,12 +30,12 @@ function createMap(earthquakes) {
 
 
 
-// Here we create a legend control object.
+// Legend control object.
 let legend = L.control({
   position: "bottomright"
 });
 
-// Then add all the details for the legend
+// Details for the legend
 legend.onAdd = function() {
   let div = L.DomUtil.create("div", "info legend");
   const quakes = [-11, 10, 30, 50, 70, 90];
@@ -48,7 +48,7 @@ legend.onAdd = function() {
     "#FF3333"
   ];
 
-// Looping through our intervals to generate a label with a colored square for each interval.
+// Looping through our intervals to generate a label with a colored circle for each interval.
   for (var i = 0; i < quakes.length; i++) {
     console.log(colors[i]);
     div.innerHTML +=
@@ -58,38 +58,38 @@ legend.onAdd = function() {
     return div;
   };
 
-// Finally, we add our legend to the map.
+// Adding legend to the map.
 legend.addTo(map);
 
 }
 
 function createMarkers(response) {
 
-  // Pull the "stations" property from response.data.
-  let stations = response.features;
+  // Pull the "location" property from response.data.
+  let locations = response.features;
 
-  // Initialize an array to hold bike markers.
+  // Initialize an array to hold location markers.
   let earthquakes = [];
- // console.log(stations);
+
  
-  // Loop through the stations array.
-  for (let index = 0; index < stations.length; index++) {
-    let station = stations[index];
+  // Loop through the locations array.
+  for (let index = 0; index < locations.length; index++) {
+    let location = locations[index];
     
     let color = "#B5FF33"
     
 
-    if (station.geometry.coordinates[2] > -11 && station.geometry.coordinates[2] < 10 ){
+    if (location.geometry.coordinates[2] > -11 && location.geometry.coordinates[2] < 10 ){
       color =  "#B5FF33" }
-    else if (station.geometry.coordinates[2] > 10 && station.geometry.coordinates[2] < 31 ){
+    else if (location.geometry.coordinates[2] > 10 && location.geometry.coordinates[2] < 31 ){
      color = "#F3FF33" }
-     else if (station.geometry.coordinates[2] > 30 && station.geometry.coordinates[2] < 51 ){
+     else if (location.geometry.coordinates[2] > 30 && location.geometry.coordinates[2] < 51 ){
      color = "#FFDA33" }
-     else if (station.geometry.coordinates[2] > 50 && station.geometry.coordinates[2] < 71 ){
+     else if (location.geometry.coordinates[2] > 50 && location.geometry.coordinates[2] < 71 ){
      color = "#FFB533" }
-     else if (station.geometry.coordinates[2] > 70 && station.geometry.coordinates[2] < 91 ){
+     else if (location.geometry.coordinates[2] > 70 && location.geometry.coordinates[2] < 91 ){
      color = "#FF5B33"}
-     else if (station.geometry.coordinates[2] > 90 ){
+     else if (location.geometry.coordinates[2] > 90 ){
      color = "#FF3333"}
      else {
      color = "#B5FF33"
@@ -97,25 +97,25 @@ function createMarkers(response) {
 
 
 
-    // For each station, create a marker, and bind a popup with the station's name.
-    let earthMarker = L.circleMarker([station.geometry.coordinates[1], station.geometry.coordinates[0]],{
-      radius:station.properties.mag *2,
+    // For each location, create a marker, and bind a popup with the location's name.
+    let earthMarker = L.circleMarker([location.geometry.coordinates[1], location.geometry.coordinates[0]],{
+      radius:location.properties.mag *2,
       color:"black",
       fillColor: color,
       opacity: 0.05,
       fillOpacity : 0.5,
     })
-      .bindPopup("<h3>" + station.properties.title + "<h3><h3>Depth: " + station.geometry.coordinates[2] + 
+      .bindPopup("<h3>" + location.properties.title + "<h3><h3>Depth: " + location.geometry.coordinates[2] + 
       "</h3>");
-    console.log(station.geometry.coordinates[2] );
-    // Add the marker to the bikeMarkers array.
+    console.log(location.geometry.coordinates[2] );
+    // Add the marker to the locations array.
     earthquakes.push(earthMarker);
   }
 
-  // Create a layer group that's made from the bike markers array, and pass it to the createMap function.
+  // Create a layer group that's made from the location markers array, and pass it to the createMap function.
   createMap(L.layerGroup(earthquakes));
 }
 
 
-// Perform an API call to the Citi Bike API to get the station information. Call createMarkers when it completes.
+// Perform an API call 
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(createMarkers);
